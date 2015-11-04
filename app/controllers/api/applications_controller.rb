@@ -11,36 +11,14 @@ class Api::ApplicationsController < ApiController
 
   def update
     @application = current_user.application
-    @errors = []
-    Application.transaction do
-      if !@application.update(application_params)
-        @errors += @application.errors
-        raise 'application params not good'
-      end
-      params[:application][:previous_addresses].each do |address|
-        address = address[1]
-        adr = nil
-        adr = PreviousAddress.find(address[:id]) if address[:id].to_i > 0
-        if adr
-          if !adr.update(address.permit(:city))
-            @errors += adr.errors.full_messages
-            raise 'address params not good'
-          end
-        else
-          address[:application_id] = @application.id
-          adr = PreviousAddress.new(address.permit(:application_id, :city))
-          if !adr.save
-            @errors += adr.errors.full_messages
-            raise 'new address params not good'
-          end
-        end
-      end
-    end
-
-    if !@errors.empty?
-      render json: @errors, status: 422
-    else
+    if @application.update_all(
+      application: application_params, 
+      previous_addresses: JSON.parse(params[:application])['previous_addresses']
+    )
+      @application.reload
       render :index
+    else
+      render json: @application.errors.full_messages, status: 422
     end
   end
 
@@ -49,14 +27,14 @@ class Api::ApplicationsController < ApiController
     if @application.destroy
       render json: @application
     else
-      render json: @application.errors.full_messages
+      render json: @application.errors.full_messages, status: 422
     end
   end
 
   private
 
   def application_params
-    params.require(:application).permit(
+    ActionController::Parameters.new(JSON.parse(params[:application])).permit(
       :last_name,
       :first_name,
       :middle_name,

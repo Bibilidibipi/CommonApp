@@ -33192,9 +33192,8 @@
 	    $.ajax({
 	      url: "api/applications/" + application.id,
 	      method: "PUT",
-	      data: { application: application },
+	      data: { application: JSON.stringify(application) },
 	      success: function success(application) {
-	        console.log(application);
 	        ApiActions.receiveApplication(application, ["Application saved"]);
 	      },
 	      error: function error(errors) {
@@ -33243,7 +33242,7 @@
 	'use strict';
 
 	module.exports = {
-	  applicationFields: ['first_name', 'last_name', 'middle_name', 'ssn', 'other_names', 'dob', 'email', 'home_phone', 'cell_phone', 'id_type', 'id_number', 'id_issuer', 'id_exp_date', 'id_other', 'current_rent', 'pet_status', 'pet_describe', 'waterbed_status', 'waterbed_describe', 'current_income', 'current_income_per', 'bankruptcy', 'eviction', 'drugs', 'other_occupants']
+	  applicationFields: ['id', 'first_name', 'last_name', 'middle_name', 'ssn', 'other_names', 'dob', 'email', 'home_phone', 'cell_phone', 'id_type', 'id_number', 'id_issuer', 'id_exp_date', 'id_other', 'current_rent', 'pet_status', 'pet_describe', 'waterbed_status', 'waterbed_describe', 'current_income', 'current_income_per', 'bankruptcy', 'eviction', 'drugs', 'other_occupants']
 	};
 
 /***/ },
@@ -33320,7 +33319,7 @@
 	    mixins: [ReactAddons.LinkedStateMixin],
 
 	    getInitialState: function getInitialState() {
-	        return ApplicationStore.application();
+	        return $.extend({ previous_addresses: AddressStore.all() }, ApplicationStore.application());
 	    },
 
 	    _sendSave: function _sendSave() {
@@ -33332,7 +33331,7 @@
 	    },
 
 	    _onSync: function _onSync(notifications) {
-	        this.setState($.extend({}, ApplicationStore.application(), { notifications: notifications, notificationClass: "show" }));
+	        this.setState($.extend({ notifications: notifications, notificationClass: "show" }, ApplicationStore.application()));
 	        setTimeout((function () {
 	            this.setState({ notificationClass: "fade" });
 	        }).bind(this), 1000);

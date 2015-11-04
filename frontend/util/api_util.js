@@ -27,7 +27,7 @@ module.exports = {
     $.ajax({
       url: "api/applications/" + application.id,
       method: "PUT",
-      data: { application: application },
+      data: ({ application: JSON.stringify(application) }),
       success: function (application) { 
         ApiActions.receiveApplication(application, ["Application saved"]);
       },

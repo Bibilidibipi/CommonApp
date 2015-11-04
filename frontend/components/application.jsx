@@ -9,7 +9,10 @@ module.exports = React.createClass({
   mixins: [ReactAddons.LinkedStateMixin],
 
   getInitialState: function () {
-    return ApplicationStore.application();
+    return $.extend(
+      { previous_addresses: AddressStore.all() }, 
+      ApplicationStore.application()
+    );
   },
 
   _sendSave: function () {
@@ -22,9 +25,8 @@ module.exports = React.createClass({
 
   _onSync: function (notifications) {
     this.setState($.extend(
-      {}, 
-      ApplicationStore.application(), 
-      { notifications: notifications, notificationClass: "show" }
+      { notifications: notifications, notificationClass: "show" },
+      ApplicationStore.application()
     ));
     setTimeout(function () {
       this.setState({ notificationClass: "fade" });
