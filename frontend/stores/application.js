@@ -4,6 +4,7 @@ var ApplicationConstants = require('../constants/application_constants');
 var CHANGE_EVENT = "application_change";
 var SAVE_EVENT = "application_save";
 var ERROR_EVENT = "application_error";
+var ADDRESS_EVENT = "address_event";
 var _application;
 var _errors;
 

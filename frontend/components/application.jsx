@@ -1,6 +1,8 @@
 var ReactAddons = require('react-addons');
 var ApiUtil = require('../util/api_util');
 var Input = require('./input.jsx');
+var Address = require('./address.jsx');
+var NewAddress = require('./new_address.jsx');
 var Notifications = require('./notifications.jsx');
 
 module.exports = React.createClass({
@@ -39,15 +41,21 @@ module.exports = React.createClass({
     }.bind(this), 1000);    
   },
 
+  _onAddressChange: function () {
+    this.setState({ previous_addresses: AddressStore.all() });
+  },
+
   componentDidMount: function () {
     ApplicationStore.addChangeListener(this._onSync);
     ApplicationStore.addErrorListener(this._onError);
+    AddressStore.addChangeListener(this._onAddressChange);
     ApiUtil.fetchApplication();
   },
 
   componentWillUnmount: function () {
     ApplicationStore.removeChangeListener(this._onSync);
     ApplicationStore.removeErrorListener(this._onError);
+    AddressStore.removeChangeListener(this._onAddressChange);
   },
 
   render: function () {
@@ -144,50 +152,10 @@ module.exports = React.createClass({
               </div>
           </div>
           <hr></hr>
-          {this.state.previous_addresses.map(function (adr, i) {
-              return <div key={i}>
-                  <div className="row">
-                      <div className="col-md-5">
-                      </div>
-                      <div className="col-md-3">
-                          <span className="display-label">City </span>
-                          <span className="display-value">{adr.city}</span>
-                      </div>
-                      <div className="col-md-2">
-                          <span className="display-label">State </span>
-                          <span className="display-value">{adr.state}</span>
-                      </div>
-                      <div className="col-md-2">
-                          <span className="display-label">Zip </span>
-                          <span className="display-value">{adr.zip}</span>
-                      </div>
-                  </div>
-                  <div className="row">
-                      <div className="col-md-2">
-                          <span className="display-label">Date In </span>
-                          <span className="display-value">{adr.date_in}</span>
-                      </div>
-                      <div className="col-md-2">
-                          <span className="display-label">Date Out </span>
-                          <span className="display-value">{adr.date_out}</span>
-                      </div>
-                      <div className="col-md-5">
-                          <span className="display-label">Owner/Agent Name </span>
-                          <span className="display-value">{adr.agent_name}</span>
-                      </div>
-                      <div className="col-md-3">
-                          <span className="display-label">Owner/Agent Phone Number </span>
-                          <span className="display-value">{adr.agent_phone}</span>
-                      </div>
-                  </div>
-                  <div className="row">
-                      <div className="col-md-12">
-                          <span className="display-label">Reason for moving out </span>
-                          <span className="display-value">{adr.move_out_reason}</span>
-                      </div>
-                  </div>
-              </div>
-          })}
+          {this.state.previous_addresses && this.state.previous_addresses.map(function (adr, i) {
+              return <Address key={i} form={this} adr={adr} />;
+          }.bind(this))}
+          <NewAddress form={this} />
           {this.state.other_occupants && this.state.other_occupants.map(function (occupant, i) {
               return <div key={i}>
                   <div className="row">
@@ -227,7 +195,7 @@ module.exports = React.createClass({
               </div>
           </div>
           <hr></hr>
-          {this.state.employers.map(function (employer, i) {
+          {this.state.employers && this.state.employers.map(function (employer, i) {
               return <div key={i}>
                   <div className="row">
                       <div className="col-md-4">
@@ -274,7 +242,7 @@ module.exports = React.createClass({
               </div>
           })}
           <hr></hr>
-          {this.state.other_incomes && this.state.other_incomes.map(function (income, i) {
+          {this.state.other_incomes && this.state.other_incomes && this.state.other_incomes.map(function (income, i) {
               return <div key={i} className="row">
                   <div className="col-md-6">
                       <span className="display-label">Other Income Source </span>
@@ -290,7 +258,7 @@ module.exports = React.createClass({
                   </div>
               </div>
           })}        
-          {this.state.banks.map(function (bank, i) {
+          {this.state.banks && this.state.banks.map(function (bank, i) {
               return <div key={i} className="row">
                   <div className="col-md-3">
                       <span className="display-label">Bank Name </span>
@@ -311,7 +279,7 @@ module.exports = React.createClass({
                   <span className="display-label">List of all financial obligations</span>
               </div>
           </div>
-          {this.state.debts.map(function (debt, i) {
+          {this.state.debts && this.state.debts.map(function (debt, i) {
               return <div key={i} className="row">
                   <div className="col-md-3">
                       <span className="display-label">Name of Creditor </span>
@@ -331,7 +299,7 @@ module.exports = React.createClass({
                   </div>
               </div>
           })}
-          {this.state.emergencies.map(function (emergency, i) {        
+          {this.state.emergencies && this.state.emergencies.map(function (emergency, i) {        
               return <div key={i} className="row">
                   <div className="col-md-3">
                       <span className="display-label">Emergency Contact </span>
@@ -351,7 +319,7 @@ module.exports = React.createClass({
                   </div>
               </div>
           })}
-          {this.state.references.map(function (reference, i) {        
+          {this.state.references && this.state.references.map(function (reference, i) {        
               return <div key={i} className="row">
                   <div className="col-md-2">
                       <span className="display-label">Personal Ref </span>
@@ -375,7 +343,7 @@ module.exports = React.createClass({
                   </div>
               </div>
           })}       
-          {this.state.cars.map(function (car, i) {        
+          {this.state.cars && this.state.cars.map(function (car, i) {        
               return <div key={i} className="row">
                   <div className="col-md-3">
                       <span className="display-label">Automobile Make </span>

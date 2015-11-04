@@ -1,0 +1,29 @@
+module.exports = {
+  applicationFields: [
+    'first_name',
+    'last_name',
+    'middle_name',
+    'ssn',
+    'other_names',
+    'dob',
+    'email',
+    'home_phone',
+    'cell_phone',
+    'id_type',
+    'id_number',
+    'id_issuer',
+    'id_exp_date',
+    'id_other',
+    'current_rent',
+    'pet_status',
+    'pet_describe',
+    'waterbed_status',
+    'waterbed_describe',
+    'current_income',
+    'current_income_per',
+    'bankruptcy',
+    'eviction',
+    'drugs',
+    'other_occupants'
+  ]
+};

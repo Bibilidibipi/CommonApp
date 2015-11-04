@@ -11,10 +11,36 @@ class Api::ApplicationsController < ApiController
 
   def update
     @application = current_user.application
-    if @application.update(application_params)
-      render json: @application
+    @errors = []
+    Application.transaction do
+      if !@application.update(application_params)
+        @errors += @application.errors
+        raise 'application params not good'
+      end
+      params[:application][:previous_addresses].each do |address|
+        address = address[1]
+        adr = nil
+        adr = PreviousAddress.find(address[:id]) if address[:id].to_i > 0
+        if adr
+          if !adr.update(address.permit(:city))
+            @errors += adr.errors.full_messages
+            raise 'address params not good'
+          end
+        else
+          address[:application_id] = @application.id
+          adr = PreviousAddress.new(address.permit(:application_id, :city))
+          if !adr.save
+            @errors += adr.errors.full_messages
+            raise 'new address params not good'
+          end
+        end
+      end
+    end
+
+    if !@errors.empty?
+      render json: @errors, status: 422
     else
-      render json: @application.errors, status: 422
+      render :index
     end
   end
 
