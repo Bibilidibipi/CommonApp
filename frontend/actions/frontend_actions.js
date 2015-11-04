@@ -19,4 +19,12 @@ module.exports = {
       address: address
     });
   },
+
+  update: function (type, id, props) {
+    AppDispatcher.dispatch({
+      actionType: ApplicationConstants[ApplicationConstants.changeConstant(type)],
+      id: id,
+      props: props
+    });
+  }
 };

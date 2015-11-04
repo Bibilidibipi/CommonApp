@@ -29530,13 +29530,22 @@
 
 	"use strict";
 
-	module.exports = {
+	var constants = {
 	  BEGIN_SAVE: "BEGIN_SAVE",
 	  APPLICATION_RECEIVED: "APPLICATION_RECEIVED",
 	  ERRORS_RECEIVED: "ERRORS_RECEIVED",
 	  ADDRESS_ADDED: "ADDRESS_ADDED",
-	  APPLICATION_REMOVED: "APPLICATION_REMOVED"
+	  ADDRESS_UPDATED: "ADDRESS_UPDATED",
+	  APPLICATION_REMOVED: "APPLICATION_REMOVED",
+
+	  changeConstant: function changeConstant(type) {
+	    return ({
+	      'address': constants.ADDRESS_UPDATED
+	    })[type];
+	  }
 	};
+
+	module.exports = constants;
 
 /***/ },
 /* 166 */
@@ -29567,6 +29576,14 @@
 	    }
 	  });
 	  _addresses = newAddresses;
+	};
+
+	var updateAddress = function updateAddress(id, props) {
+	  _addresses.forEach(function (adr) {
+	    if (id === adr.id) {
+	      $.extend(adr, props);
+	    }
+	  });
 	};
 
 	module.exports = $.extend({}, EventEmitter.prototype, {
@@ -29604,6 +29621,10 @@
 	        break;
 	      case ApplicationConstants.ADDRESS_REMOVED:
 	        removeAddress(payload.address);
+	        AddressStore.emit(ADDRESS_EVENT);
+	        break;
+	      case ApplicationConstants.ADDRESS_UPDATED:
+	        updateAddress(payload.id, payload.props);
 	        AddressStore.emit(ADDRESS_EVENT);
 	        break;
 	    }
@@ -33271,6 +33292,14 @@
 	      actionType: ApplicationConstants.ADDRESS_REMOVED,
 	      address: address
 	    });
+	  },
+
+	  update: function update(type, id, props) {
+	    AppDispatcher.dispatch({
+	      actionType: ApplicationConstants[ApplicationConstants.changeConstant(type)],
+	      id: id,
+	      props: props
+	    });
 	  }
 	};
 
@@ -33309,9 +33338,9 @@
 	var ReactAddons = __webpack_require__(177);
 	var ApiUtil = __webpack_require__(171);
 	var Input = __webpack_require__(270);
-	var Address = __webpack_require__(272);
-	var NewAddress = __webpack_require__(273);
-	var Notifications = __webpack_require__(274);
+	var Address = __webpack_require__(273);
+	var NewAddress = __webpack_require__(274);
+	var Notifications = __webpack_require__(275);
 
 	module.exports = React.createClass({
 	    displayName: 'exports',
@@ -46139,7 +46168,9 @@
 	'use strict';
 
 	var ReactAddons = __webpack_require__(177);
-	var Error = __webpack_require__(271);
+	var StoresUtil = __webpack_require__(271);
+	var FrontendActions = __webpack_require__(174);
+	var Error = __webpack_require__(272);
 
 	module.exports = React.createClass({
 	  displayName: 'exports',
@@ -46148,7 +46179,12 @@
 
 	  getInitialState: function getInitialState() {
 	    var state = { className: "" };
-	    state[this.props.name] = this.props.form.state[this.props.name];
+	    if (this.props.type) {
+	      var Store = StoresUtil.find(this.props.type);
+	      state[this.props.name] = Store.find(this.props.id)[this.props.name];
+	    } else {
+	      state[this.props.name] = this.props.form.state[this.props.name];
+	    }
 	    return state;
 	  },
 
@@ -46186,7 +46222,17 @@
 	  },
 
 	  _edit: function _edit(e) {
-	    this.props.form.setState(this.state);
+
+	    if (this.props.type) {
+	      FrontendActions.update(this.props.type, this.props.id, this.state);
+	    } else {
+
+	      //FrontendAction to reset store triggers props change  ???
+	      //Input would have to keep track of an object instead of a form
+	      //Let's do it!!!! TG for git.
+
+	      this.props.form.setState(this.state);
+	    }
 	    $(e.currentTarget).addClass("hide-edit");
 	  },
 
@@ -46220,6 +46266,20 @@
 /* 271 */
 /***/ function(module, exports) {
 
+	'use strict';
+
+	module.exports = {
+	  find: function find(type) {
+	    return ({
+	      'address': AddressStore
+	    })[type];
+	  }
+	};
+
+/***/ },
+/* 272 */
+/***/ function(module, exports) {
+
 	"use strict";
 
 	module.exports = React.createClass({
@@ -46235,7 +46295,7 @@
 	});
 
 /***/ },
-/* 272 */
+/* 273 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -46264,7 +46324,8 @@
 	                    React.createElement(Input, {
 	                        displayName: 'City',
 	                        name: 'city',
-	                        form: this.props.form
+	                        type: 'address',
+	                        id: this.props.adr.id
 	                    })
 	                ),
 	                React.createElement(
@@ -46273,7 +46334,8 @@
 	                    React.createElement(Input, {
 	                        displayName: 'State',
 	                        name: 'state',
-	                        form: this.props.form
+	                        type: 'address',
+	                        id: this.props.adr.id
 	                    })
 	                ),
 	                React.createElement(
@@ -46282,7 +46344,8 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Zip',
 	                        name: 'zip',
-	                        form: this.props.form
+	                        type: 'address',
+	                        id: this.props.adr.id
 	                    })
 	                )
 	            ),
@@ -46295,7 +46358,8 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Date In',
 	                        name: 'date_in',
-	                        form: this.props.form
+	                        type: 'address',
+	                        id: this.props.adr.id
 	                    })
 	                ),
 	                React.createElement(
@@ -46304,7 +46368,8 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Date Out',
 	                        name: 'date_out',
-	                        form: this.props.form
+	                        type: 'address',
+	                        id: this.props.adr.id
 	                    })
 	                ),
 	                React.createElement(
@@ -46313,7 +46378,8 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Owner/Agent Name',
 	                        name: 'agent_name',
-	                        form: this.props.form
+	                        type: 'address',
+	                        id: this.props.adr.id
 	                    })
 	                ),
 	                React.createElement(
@@ -46322,7 +46388,8 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Owner/Agent Phone Number',
 	                        name: 'agent_phone',
-	                        form: this.props.form
+	                        type: 'address',
+	                        id: this.props.adr.id
 	                    })
 	                )
 	            ),
@@ -46335,7 +46402,8 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Reason for moving out',
 	                        name: 'move_out_reason',
-	                        form: this.props.form
+	                        type: 'address',
+	                        id: this.props.adr.id
 	                    })
 	                )
 	            ),
@@ -46349,7 +46417,7 @@
 	});
 
 /***/ },
-/* 273 */
+/* 274 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -46369,7 +46437,7 @@
 	});
 
 /***/ },
-/* 274 */
+/* 275 */
 /***/ function(module, exports) {
 
 	"use strict";

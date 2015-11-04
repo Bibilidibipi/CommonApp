@@ -21,6 +21,14 @@ var removeAddress = function (address) {
   _addresses = newAddresses;
 };
 
+var updateAddress = function (id, props) {
+  _addresses.forEach(function (adr) {
+    if(id === adr.id) {
+      $.extend(adr, props);
+    }
+  })
+};
+
 module.exports = $.extend({}, EventEmitter.prototype, {
   all: function () {
     return _addresses.slice();
@@ -56,6 +64,10 @@ module.exports = $.extend({}, EventEmitter.prototype, {
         removeAddress(payload.address);
         AddressStore.emit(ADDRESS_EVENT);
         break; 
+      case ApplicationConstants.ADDRESS_UPDATED:
+        updateAddress(payload.id, payload.props);
+        AddressStore.emit(ADDRESS_EVENT);
+        break;
     }
   })
 });

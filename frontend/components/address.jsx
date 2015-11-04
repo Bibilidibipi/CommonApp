@@ -15,21 +15,24 @@ module.exports = React.createClass({
                 <Input
                     displayName="City" 
                     name="city" 
-                    form={this.props.form}
+                    type='address'
+                    id={this.props.adr.id}
                 />
             </div>
             <div className="col-md-2">
                 <Input
                     displayName="State" 
                     name="state" 
-                    form={this.props.form}
+                    type='address'
+                    id={this.props.adr.id}
                 />            
             </div>
             <div className="col-md-2">
                 <Input
                     displayName="Zip" 
                     name="zip" 
-                    form={this.props.form}
+                    type='address'
+                    id={this.props.adr.id}
                 />            
             </div>
         </div>
@@ -38,28 +41,32 @@ module.exports = React.createClass({
                 <Input
                     displayName="Date In" 
                     name="date_in" 
-                    form={this.props.form}
+                    type='address'
+                    id={this.props.adr.id}
                 />
             </div>
             <div className="col-md-2">
                 <Input
                     displayName="Date Out" 
                     name="date_out" 
-                    form={this.props.form}
+                    type='address'
+                    id={this.props.adr.id}
                 />
             </div>
             <div className="col-md-5">
                 <Input
                     displayName="Owner/Agent Name" 
                     name="agent_name" 
-                    form={this.props.form}
+                    type='address'
+                    id={this.props.adr.id}
                 />            
             </div>
             <div className="col-md-3">
                 <Input
                     displayName="Owner/Agent Phone Number" 
                     name="agent_phone" 
-                    form={this.props.form}
+                    type='address'
+                    id={this.props.adr.id}
                 />            
             </div>
         </div>
@@ -68,7 +75,8 @@ module.exports = React.createClass({
                 <Input
                     displayName="Reason for moving out" 
                     name="move_out_reason" 
-                    form={this.props.form}
+                    type='address'
+                    id={this.props.adr.id}
                 />            
             </div>
         </div>

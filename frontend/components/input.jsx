@@ -1,4 +1,6 @@
 var ReactAddons = require('react-addons');
+var StoresUtil = require('../util/stores_util');
+var FrontendActions = require('../actions/frontend_actions');
 var Error = require('./error.jsx');
 
 module.exports = React.createClass({
@@ -6,7 +8,12 @@ module.exports = React.createClass({
 
   getInitialState: function () {
     var state = { className: "" };
-    state[this.props.name] = this.props.form.state[this.props.name];
+    if(this.props.type) {
+      var Store = StoresUtil.find(this.props.type);
+      state[this.props.name] = Store.find(this.props.id)[this.props.name]
+    } else {
+      state[this.props.name] = this.props.form.state[this.props.name];
+    }
     return state;
   },
 
@@ -44,7 +51,19 @@ module.exports = React.createClass({
   },
 
   _edit: function (e) {
-    this.props.form.setState(this.state);
+
+    if(this.props.type) { 
+      FrontendActions.update(this.props.type, this.props.id, this.state);
+    } else {
+
+
+    //FrontendAction to reset store triggers props change  ???
+    //Input would have to keep track of an object instead of a form
+    //Let's do it!!!! TG for git.
+
+
+      this.props.form.setState(this.state);
+    }
     $(e.currentTarget).addClass("hide-edit");
   },  
 
