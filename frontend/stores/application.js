@@ -61,7 +61,7 @@ module.exports = $.extend({}, EventEmitter.prototype, {
         );
         break; 
       case ApplicationConstants.ERRORS_RECEIVED:
-        resetErrors(payload.errors);
+        resetErrors(payload.errors.applicationErrors);
         ApplicationStore.emit(ERROR_EVENT);
         break;
     }

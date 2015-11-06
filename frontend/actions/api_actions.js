@@ -1,10 +1,9 @@
-var ApplicationUtil = require('../util/application_util');
 var ApplicationConstants = require('../constants/application_constants');
 
 module.exports = {
   receiveApplication: function (application, notifications) {
     var applicationFields = {};
-    ApplicationUtil.applicationFields.forEach(function (field) {
+    ApplicationConstants.applicationFields.forEach(function (field) {
       applicationFields[field] = application[field];
     });
 

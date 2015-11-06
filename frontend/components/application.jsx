@@ -1,8 +1,9 @@
 var ReactAddons = require('react-addons');
 var ApiUtil = require('../util/api_util');
+var ValidationUtil = require('../util/validation_util')
+var FrontendActions = require('../actions/frontend_actions');
 var Input = require('./input.jsx');
 var Address = require('./address.jsx');
-var NewAddress = require('./new_address.jsx');
 var Notifications = require('./notifications.jsx');
 
 module.exports = React.createClass({
@@ -21,6 +22,14 @@ module.exports = React.createClass({
       notificationClass: "show" 
     });
     ApiUtil.saveApplication(this.state);
+  },
+
+  _validate: function () {
+    ValidationUtil.validate($.extend(
+      {}, 
+      this.state,
+      { addresses: AddressStore.all() }
+    ));
   },
 
   _onSync: function (notifications) {
@@ -73,6 +82,7 @@ module.exports = React.createClass({
             className={this.state.notificationClass} 
           />
           <button onClick={this._sendSave}>Save Changes</button>
+          <button onClick={this._validate}>Check for validity</button>
           <div className="row">
               <div className="col-md-12 text-center h2">Application To Rent</div>
           </div>
@@ -157,7 +167,9 @@ module.exports = React.createClass({
           {this.state.previous_addresses && this.state.previous_addresses.map(function (adr, i) {
               return <Address key={i} form={this} adr={adr} />;
           }.bind(this))}
-          <NewAddress form={this} />
+          <button type='button' onClick={FrontendActions.addBlankAddress}>
+              Add Address
+          </button>
           {this.state.other_occupants && this.state.other_occupants.map(function (occupant, i) {
               return <div key={i}>
                   <div className="row">
