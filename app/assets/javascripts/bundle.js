@@ -29158,29 +29158,25 @@
 	var ERROR_EVENT = "application_error";
 	var ADDRESS_EVENT = "address_event";
 	var _application;
-	var _errors;
 
 	var resetApplication = function resetApplication(application) {
 	  _application = application;
 	};
 
+	var updateApplication = function updateApplication(props) {
+	  $.extend(_application, props);
+	};
+
 	var resetErrors = function resetErrors(errors) {
-	  _errors = errors;
+	  _application.errors = errors;
 	};
 
 	module.exports = $.extend({}, EventEmitter.prototype, {
-	  application: function application() {
+	  find: function find() {
 	    if (!_application) {
-	      return null;
+	      return {};
 	    }
 	    return $.extend(true, {}, _application);
-	  },
-
-	  errors: function errors() {
-	    if (!_errors) {
-	      return null;
-	    }
-	    return $.extend(true, {}, _errors);
 	  },
 
 	  addSaveListener: function addSaveListener(callback) {
@@ -29212,6 +29208,10 @@
 	      case ApplicationConstants.APPLICATION_RECEIVED:
 	        resetApplication(payload.application);
 	        ApplicationStore.emit(CHANGE_EVENT, payload.notifications);
+	        break;
+	      case ApplicationConstants.APPLICATION_UPDATED:
+	        updateApplication(payload.props);
+	        ApplicationStore.emit(CHANGE_EVENT);
 	        break;
 	      case ApplicationConstants.ERRORS_RECEIVED:
 	        resetErrors(payload.errors.applicationErrors);
@@ -29538,15 +29538,18 @@
 	  ADDRESS_ADDED: "ADDRESS_ADDED",
 	  ADDRESS_UPDATED: "ADDRESS_UPDATED",
 	  APPLICATION_REMOVED: "APPLICATION_REMOVED",
+	  APPLICATION_UPDATED: "APPLICATION_UPDATED",
 
 	  changeConstant: function changeConstant(type) {
 	    return ({
+	      'application': constants.APPLICATION_UPDATED,
 	      'address': constants.ADDRESS_UPDATED
 	    })[type];
 	  },
 
 	  findStore: function findStore(type) {
 	    return ({
+	      'application': ApplicationStore,
 	      'address': AddressStore
 	    })[type];
 	  },
@@ -33250,7 +33253,7 @@
 	        ApiActions.receiveApplication(application, ["Application saved"]);
 	      },
 	      error: function error(errors) {
-	        ApiActions.receiveErrors(JSON.parse(errors.responseText));
+	        console.log('bad!!!');
 	      }
 	    });
 	  }
@@ -33370,7 +33373,7 @@
 	    mixins: [ReactAddons.LinkedStateMixin],
 
 	    getInitialState: function getInitialState() {
-	        return $.extend({ previous_addresses: AddressStore.all() }, ApplicationStore.application());
+	        return $.extend({ previous_addresses: AddressStore.all() }, ApplicationStore.find());
 	    },
 
 	    _sendSave: function _sendSave() {
@@ -33382,11 +33385,11 @@
 	    },
 
 	    _validate: function _validate() {
-	        ValidationUtil.validate($.extend({}, this.state, { addresses: AddressStore.all() }));
+	        ValidationUtil.validate($.extend({ addresses: AddressStore.all() }, this.state));
 	    },
 
 	    _onSync: function _onSync(notifications) {
-	        this.setState($.extend({ notifications: notifications, notificationClass: "show" }, ApplicationStore.application()));
+	        this.setState($.extend({ notifications: notifications, notificationClass: "show" }, ApplicationStore.find()));
 	        setTimeout((function () {
 	            this.setState({ notificationClass: "fade" });
 	        }).bind(this), 1000);
@@ -33408,14 +33411,12 @@
 
 	    componentDidMount: function componentDidMount() {
 	        ApplicationStore.addChangeListener(this._onSync);
-	        ApplicationStore.addErrorListener(this._onError);
 	        AddressStore.addChangeListener(this._onAddressChange);
 	        ApiUtil.fetchApplication();
 	    },
 
 	    componentWillUnmount: function componentWillUnmount() {
 	        ApplicationStore.removeChangeListener(this._onSync);
-	        ApplicationStore.removeErrorListener(this._onError);
 	        AddressStore.removeChangeListener(this._onAddressChange);
 	    },
 
@@ -33427,17 +33428,6 @@
 	        return React.createElement(
 	            'div',
 	            null,
-	            React.createElement(
-	                'ul',
-	                null,
-	                this.state.errors && this.state.errors.map(function (message, i) {
-	                    return React.createElement(
-	                        'li',
-	                        { key: i },
-	                        message
-	                    );
-	                })
-	            ),
 	            React.createElement(Notifications, {
 	                notifications: this.state.notifications,
 	                className: this.state.notificationClass
@@ -33471,7 +33461,7 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Last Name',
 	                        name: 'last_name',
-	                        form: this
+	                        type: 'application'
 	                    })
 	                ),
 	                React.createElement(
@@ -33480,7 +33470,7 @@
 	                    React.createElement(Input, {
 	                        displayName: 'First Name',
 	                        name: 'first_name',
-	                        form: this
+	                        type: 'application'
 	                    })
 	                ),
 	                React.createElement(
@@ -33489,7 +33479,7 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Middle Name',
 	                        name: 'middle_name',
-	                        form: this
+	                        type: 'application'
 	                    })
 	                ),
 	                React.createElement(
@@ -33498,7 +33488,7 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Social Security Number',
 	                        name: 'social_security_number',
-	                        form: this
+	                        type: 'application'
 	                    })
 	                )
 	            ),
@@ -33511,7 +33501,7 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Other Names',
 	                        name: 'other_names',
-	                        form: this
+	                        type: 'application'
 	                    })
 	                ),
 	                React.createElement(
@@ -33520,7 +33510,7 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Work Phone',
 	                        name: 'work_phone',
-	                        form: this
+	                        type: 'application'
 	                    })
 	                ),
 	                React.createElement(
@@ -33529,7 +33519,7 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Home Phone',
 	                        name: 'home_phone',
-	                        form: this
+	                        type: 'application'
 	                    })
 	                )
 	            ),
@@ -33542,7 +33532,7 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Date of Birth',
 	                        name: 'date_of_birth',
-	                        form: this
+	                        type: 'application'
 	                    })
 	                ),
 	                React.createElement(
@@ -33551,7 +33541,7 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Email',
 	                        name: 'email',
-	                        form: this
+	                        type: 'application'
 	                    })
 	                ),
 	                React.createElement(
@@ -33560,7 +33550,7 @@
 	                    React.createElement(Input, {
 	                        displayName: 'Mobile Phone',
 	                        name: 'mobile_phone',
-	                        form: this
+	                        type: 'application'
 	                    })
 	                )
 	            ),
@@ -46281,45 +46271,38 @@
 	  mixins: [ReactAddons.LinkedStateMixin],
 
 	  getInitialState: function getInitialState() {
-	    var state = { className: "" };
-	    if (this.props.type) {
-	      var Store = ApplicationConstants.findStore(this.props.type);
-	      state[this.props.name] = Store.find(this.props.id)[this.props.name];
-	    } else {
-	      state[this.props.name] = this.props.form.state[this.props.name];
-	    }
+	    return $.extend({ className: "" }, this.getStateFromStore());
+	  },
+
+	  getStateFromStore: function getStateFromStore() {
+	    var state = {};
+	    var Store = ApplicationConstants.findStore(this.props.type);
+	    var obj = Store.find(this.props.id);
+	    state[this.props.name] = obj && obj[this.props.name];
 	    return state;
 	  },
 
 	  componentDidMount: function componentDidMount() {
 	    ApplicationStore.addSaveListener(this._onSave);
-	    if (this.props.type) {
-	      var Store = ApplicationConstants.findStore(this.props.type);
-	      Store.addErrorListener(this._onError);
-	    } else {
-	      ApplicationStore.addErrorListener(this._onError);
-	    }
+	    var Store = ApplicationConstants.findStore(this.props.type);
+	    Store.addErrorListener(this._onError);
+	    Store.addChangeListener(this._onChange);
 	  },
 
 	  componentWillUnmount: function componentWillUnmount() {
 	    ApplicationStore.removeSaveListener(this._onSave);
-	    if (this.props.type) {
-	      var Store = ApplicationConstants.findStore(this.props.type);
-	      Store.removeErrorListener(this._onError);
-	    } else {
-	      ApplicationStore.removeErrorListener(this._onError);
-	    }
+	    var Store = ApplicationConstants.findStore(this.props.type);
+	    Store.removeErrorListener(this._onError);
+	    Store.removeChangeListener(this._onChange);
+	  },
+
+	  _onChange: function _onChange() {
+	    this.setState(this.getStateFromStore());
 	  },
 
 	  _onError: function _onError() {
-	    var error;
-	    if (this.props.type) {
-	      var Store = ApplicationConstants.findStore(this.props.type);
-	      var obj = Store.find(this.props.id);
-	      error = obj.errors[this.props.name];
-	    } else {
-	      error = ApplicationStore.errors()[this.props.name];
-	    }
+	    var Store = ApplicationConstants.findStore(this.props.type);
+	    var error = Store.find(this.props.id).errors[this.props.name];
 	    if (error) {
 	      this.setState({
 	        error: error,
@@ -46348,11 +46331,7 @@
 	  },
 
 	  _edit: function _edit(e) {
-	    if (this.props.type) {
-	      FrontendActions.update(this.props.type, this.props.id, this.state);
-	    } else {
-	      this.props.form.setState(this.state);
-	    }
+	    FrontendActions.update(this.props.type, this.props.id, this.state);
 	    $(e.currentTarget).addClass("hide-edit");
 	  },
 
@@ -46374,7 +46353,6 @@
 	          className: 'hide-edit',
 	          onFocus: this._showEdit,
 	          onBlur: this._edit,
-	          name: this.props.name,
 	          valueLink: this.linkState(this.props.name)
 	        })
 	      )

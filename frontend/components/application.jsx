@@ -12,7 +12,7 @@ module.exports = React.createClass({
   getInitialState: function () {
     return $.extend(
       { previous_addresses: AddressStore.all() }, 
-      ApplicationStore.application()
+      ApplicationStore.find()
     );
   },
 
@@ -26,16 +26,15 @@ module.exports = React.createClass({
 
   _validate: function () {
     ValidationUtil.validate($.extend(
-      {}, 
-      this.state,
-      { addresses: AddressStore.all() }
+      { addresses: AddressStore.all() },
+      this.state
     ));
   },
 
   _onSync: function (notifications) {
     this.setState($.extend(
       { notifications: notifications, notificationClass: "show" },
-      ApplicationStore.application()
+      ApplicationStore.find()
     ));
     setTimeout(function () {
       this.setState({ notificationClass: "fade" });
@@ -58,25 +57,20 @@ module.exports = React.createClass({
 
   componentDidMount: function () {
     ApplicationStore.addChangeListener(this._onSync);
-    ApplicationStore.addErrorListener(this._onError);
     AddressStore.addChangeListener(this._onAddressChange);
     ApiUtil.fetchApplication();
   },
 
   componentWillUnmount: function () {
     ApplicationStore.removeChangeListener(this._onSync);
-    ApplicationStore.removeErrorListener(this._onError);
     AddressStore.removeChangeListener(this._onAddressChange);
   },
 
   render: function () {
     if(!this.state) { return <div></div>; }
-    
+
     return(
       <div>
-          <ul>{this.state.errors && this.state.errors.map(function (message, i) {
-              return <li key={i}>{message}</li>;
-          })}</ul>
           <Notifications 
             notifications={this.state.notifications} 
             className={this.state.notificationClass} 
@@ -92,28 +86,28 @@ module.exports = React.createClass({
                   <Input
                     displayName="Last Name" 
                     name="last_name" 
-                    form={this}
+                    type="application"
                   />
               </div>
               <div className="col-md-3">
                   <Input
                     displayName="First Name" 
                     name="first_name" 
-                    form={this}
+                    type="application"
                   />
               </div>
               <div className="col-md-3">
                   <Input
                     displayName="Middle Name" 
                     name="middle_name" 
-                    form={this}
+                    type="application"
                   />
               </div>
               <div className="col-md-3">
                   <Input
                     displayName="Social Security Number" 
                     name="social_security_number" 
-                    form={this}
+                    type="application"
                   />
               </div>
           </div>
@@ -122,21 +116,21 @@ module.exports = React.createClass({
                   <Input
                     displayName="Other Names" 
                     name="other_names" 
-                    form={this}
+                    type="application"
                   />
               </div>
               <div className="col-md-3">
                   <Input
                     displayName="Work Phone" 
                     name="work_phone" 
-                    form={this}
+                    type="application"
                   />
               </div>
               <div className="col-md-3">
                   <Input
                     displayName="Home Phone" 
                     name="home_phone" 
-                    form={this}
+                    type="application"
                   />
               </div>
           </div>
@@ -145,21 +139,21 @@ module.exports = React.createClass({
                   <Input
                     displayName="Date of Birth" 
                     name="date_of_birth" 
-                    form={this}
+                    type="application"
                   />
               </div>
               <div className="col-md-6">
                   <Input
                     displayName="Email" 
                     name="email" 
-                    form={this}
+                    type="application"
                   />
               </div>
               <div className="col-md-3">
                   <Input
                     displayName="Mobile Phone" 
                     name="mobile_phone" 
-                    form={this}
+                    type="application"
                   />
               </div>
           </div>

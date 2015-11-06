@@ -7,45 +7,38 @@ module.exports = React.createClass({
   mixins: [ReactAddons.LinkedStateMixin],
 
   getInitialState: function () {
-    var state = { className: "" };
-    if(this.props.type) {
-      var Store = ApplicationConstants.findStore(this.props.type);
-      state[this.props.name] = Store.find(this.props.id)[this.props.name]
-    } else {
-      state[this.props.name] = this.props.form.state[this.props.name];
-    }
+    return $.extend({ className: "" }, this.getStateFromStore());
+  },
+
+  getStateFromStore: function () {
+    var state = {};
+    var Store = ApplicationConstants.findStore(this.props.type);
+    var obj = Store.find(this.props.id);
+    state[this.props.name] = obj && obj[this.props.name];
     return state;
   },
 
   componentDidMount: function () {
     ApplicationStore.addSaveListener(this._onSave);
-    if(this.props.type) {
-      var Store = ApplicationConstants.findStore(this.props.type);
-      Store.addErrorListener(this._onError);
-    } else {
-      ApplicationStore.addErrorListener(this._onError);
-    }
+    var Store = ApplicationConstants.findStore(this.props.type);
+    Store.addErrorListener(this._onError);
+    Store.addChangeListener(this._onChange);
   },
 
   componentWillUnmount: function () {
     ApplicationStore.removeSaveListener(this._onSave);
-    if(this.props.type) {
-      var Store = ApplicationConstants.findStore(this.props.type);
-      Store.removeErrorListener(this._onError);
-    } else {
-      ApplicationStore.removeErrorListener(this._onError);
-    }
+    var Store = ApplicationConstants.findStore(this.props.type);
+    Store.removeErrorListener(this._onError);
+    Store.removeChangeListener(this._onChange);
+  },
+
+  _onChange: function () {
+    this.setState(this.getStateFromStore());
   },
 
   _onError: function () {
-    var error;
-    if(this.props.type) {
-      var Store = ApplicationConstants.findStore(this.props.type);
-      var obj = Store.find(this.props.id);
-      error = obj.errors[this.props.name];
-    } else {
-      error = ApplicationStore.errors()[this.props.name];
-    }
+    var Store = ApplicationConstants.findStore(this.props.type);
+    var error = Store.find(this.props.id).errors[this.props.name];
     if(error) {
       this.setState({ 
         error: error, 
@@ -74,11 +67,7 @@ module.exports = React.createClass({
   },
 
   _edit: function (e) {
-    if(this.props.type) { 
-      FrontendActions.update(this.props.type, this.props.id, this.state);
-    } else {
-      this.props.form.setState(this.state);
-    }
+    FrontendActions.update(this.props.type, this.props.id, this.state);
     $(e.currentTarget).addClass("hide-edit");
   },  
 
@@ -93,7 +82,6 @@ module.exports = React.createClass({
         className="hide-edit"
         onFocus={this._showEdit}
         onBlur={this._edit}
-        name={this.props.name}
         valueLink={this.linkState(this.props.name)}
       ></input></label>
     </div>;

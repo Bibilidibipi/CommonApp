@@ -5,15 +5,18 @@ var constants = {
   ADDRESS_ADDED: "ADDRESS_ADDED",
   ADDRESS_UPDATED: "ADDRESS_UPDATED",
   APPLICATION_REMOVED: "APPLICATION_REMOVED",
+  APPLICATION_UPDATED: "APPLICATION_UPDATED",
 
   changeConstant: function (type) {
     return {
+      'application': constants.APPLICATION_UPDATED,
       'address': constants.ADDRESS_UPDATED
     }[type];
   },
 
   findStore: function (type) {
     return {
+      'application': ApplicationStore,
       'address': AddressStore
     }[type];
   },  

@@ -1,6 +1,4 @@
 class Application < ActiveRecord::Base
-  validates :first_name, presence: true  
-
   has_many :previous_addresses, dependent: :destroy
   has_many :employers, dependent: :destroy
   has_many :banks, dependent: :destroy

@@ -32,7 +32,7 @@ module.exports = {
         ApiActions.receiveApplication(application, ["Application saved"]);
       },
       error: function (errors) {
-        ApiActions.receiveErrors(JSON.parse(errors.responseText));
+        console.log('bad!!!');
       }
     });
   }

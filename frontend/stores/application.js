@@ -6,25 +6,23 @@ var SAVE_EVENT = "application_save";
 var ERROR_EVENT = "application_error";
 var ADDRESS_EVENT = "address_event";
 var _application;
-var _errors;
 
 var resetApplication = function (application) {
   _application = application;
 };
 
+var updateApplication = function (props) {
+  $.extend(_application, props); 
+};
+
 var resetErrors = function (errors) {
-  _errors = errors;
+  _application.errors = errors;
 };
 
 module.exports = $.extend({}, EventEmitter.prototype, {
-  application: function () {
-    if(!_application) { return null; }
+  find: function () {
+    if(!_application) { return {}; }
     return $.extend(true, {}, _application);
-  },
-
-  errors: function () {
-    if(!_errors) { return null; }
-    return $.extend(true, {}, _errors);
   },
 
   addSaveListener: function (callback) {
@@ -60,6 +58,10 @@ module.exports = $.extend({}, EventEmitter.prototype, {
           payload.notifications
         );
         break; 
+      case ApplicationConstants.APPLICATION_UPDATED:
+        updateApplication(payload.props);
+        ApplicationStore.emit(CHANGE_EVENT);
+        break;        
       case ApplicationConstants.ERRORS_RECEIVED:
         resetErrors(payload.errors.applicationErrors);
         ApplicationStore.emit(ERROR_EVENT);
