@@ -1,9 +1,4 @@
-<div id='main'></div>
-<script>  
-  $(function () {
-    ReactDOM.render(
-      React.createElement(View),
-      document.getElementById("main")
-    );
-  })
-</script>
+<div ng-app="commonApp" id='main'>
+  <div ng-view></div>
+</div>
+
