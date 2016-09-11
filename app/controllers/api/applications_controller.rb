@@ -2,20 +2,19 @@ class Api::ApplicationsController < ApiController
   before_action :require_logged_in!
 
   def index
-    @application = current_user.application
+    @application = current_user.application ||
+      Application.create!(user: current_user)
   end
 
-  def create
-    @application = current_user.application.new(application_params)
-  end
-
-  def update
+  def update #move to command
     @application = current_user.application
-    if @application.update_all(
-      application: application_params, 
-      previous_addresses: JSON.parse(params[:application])['previous_addresses']
-    )
-      @application.reload
+    if @application.update(application_params)
+      ActiveRecord::Base.transaction do
+        @application.previous_addresses.delete_all
+        JSON.parse(params[:application])[:previous_addresses].each do |pa|
+          @application.previous_addresses.create!(pa)
+        end
+      end
       render :index
     else
       render json: @application.errors.full_messages, status: 422
