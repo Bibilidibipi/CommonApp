@@ -9,10 +9,19 @@ class Api::ApplicationsController < ApiController
   def update #move to command
     @application = current_user.application
     if @application.update(application_params)
-      ActiveRecord::Base.transaction do
-        @application.previous_addresses.delete_all
-        JSON.parse(params[:application])[:previous_addresses].each do |pa|
-          @application.previous_addresses.create!(pa)
+      ['previous_addresses',
+      'employers',
+      'other_incomes',
+      'banks',
+      'debts',
+      'emergencies',
+      'references',
+      'cars'].each do |app_element|
+        ActiveRecord::Base.transaction do
+          @application.send(app_element).delete_all
+          JSON.parse(params[:application])[app_element].each do |elem|
+            @application.send(app_element).create!(elem)
+          end
         end
       end
       render :index
