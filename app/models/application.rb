@@ -7,5 +7,6 @@ class Application < ActiveRecord::Base
   has_many :references, dependent: :destroy
   has_many :cars, dependent: :destroy
   has_many :other_incomes, dependent: :destroy
+  has_many :links, dependent: :destroy
   belongs_to :user
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151012000851) do
+ActiveRecord::Schema.define(version: 20160916054258) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -110,6 +110,16 @@ ActiveRecord::Schema.define(version: 20151012000851) do
     t.datetime "updated_at",     null: false
   end
 
+  create_table "links", force: :cascade do |t|
+    t.string   "uuid",           null: false
+    t.integer  "application_id", null: false
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  add_index "links", ["application_id"], name: "index_links_on_application_id", using: :btree
+  add_index "links", ["uuid"], name: "index_links_on_uuid", using: :btree
+
   create_table "other_incomes", force: :cascade do |t|
     t.string   "source",         null: false
     t.integer  "amount",         null: false
@@ -156,4 +166,5 @@ ActiveRecord::Schema.define(version: 20151012000851) do
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["session_token"], name: "index_users_on_session_token", unique: true, using: :btree
 
+  add_foreign_key "links", "applications"
 end
