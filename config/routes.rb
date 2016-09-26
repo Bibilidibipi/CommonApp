@@ -13,5 +13,6 @@ Rails.application.routes.draw do
     resources :employers, only: [:create, :show, :destroy]
     resources :previous_addresses, only: [:create, :show, :destroy]
     resources :references, only: [:create, :show, :destroy]
+    resources :links, only: [:create, :show, :destroy]
   end
 end

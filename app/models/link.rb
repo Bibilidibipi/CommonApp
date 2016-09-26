@@ -1,4 +1,7 @@
 class Link < ActiveRecord::Base
+  extend FriendlyId
+  friendly_id :uuid
+
   belongs_to :application
   default_scope -> { order('created_at DESC') }
   validates :uuid, length: { is: 36 }, uniqueness: true
